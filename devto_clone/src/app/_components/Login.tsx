@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { signIn } from 'next-auth/react';
 
 export default function Login() {
@@ -10,7 +10,7 @@ export default function Login() {
     const result = await signIn('credentials', {
       email,
       password,
-      redirect: false,
+      redirect: false,  
     });
 
     if (result?.error) {

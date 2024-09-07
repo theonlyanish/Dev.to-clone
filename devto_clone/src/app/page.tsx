@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 import { LatestPost } from "~/app/_components/post";
 import { getServerAuthSession } from "~/server/auth";
