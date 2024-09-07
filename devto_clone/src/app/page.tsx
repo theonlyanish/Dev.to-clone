@@ -13,6 +13,15 @@ export default async function Home() {
 
   return (
     <HydrateClient>
+      <header className="flex items-center justify-between bg-white p-4">
+        <h1 className="text-2xl font-bold">Dev.to Clone</h1>
+        <Link
+          href="/new"
+          className="rounded-full bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+        >
+          Create a new blog
+        </Link>
+      </header>
       <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
         <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
           <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
