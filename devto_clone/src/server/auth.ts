@@ -32,15 +32,30 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!existingUser) {
-          await db.user.create({
+          const newUser = await db.user.create({
             data: {
               name: user.name,
               email: user.email,
               image: user.image,
             },
           });
-        }
 
+          await db.account.create({
+            data: {
+              userId: newUser.id,
+              type: 'oauth', 
+              provider: account.provider,
+              providerAccountId: account.id as string, 
+              access_token: account.access_token ?? undefined,
+              refresh_token: account.refresh_token ?? undefined,
+              expires_at: account.expires_at ?? undefined,
+              token_type: account.token_type ?? undefined,
+              scope: account.scope ?? undefined,
+              id_token: account.id_token ?? undefined,
+              session_state: account.session_state ?? undefined,
+            },
+          });
+        }
         return '/';
       }
       
@@ -49,7 +64,6 @@ export const authOptions: NextAuthOptions = {
     session: async ({ session, user }) => {
       if (session.user) {
         session.user.id = user.id;
-        
       }
       console.log("Session callback:", { session, user });
       return session;
@@ -57,7 +71,6 @@ export const authOptions: NextAuthOptions = {
     jwt: async ({ token, user }) => {
       if (user) {
         token.id = user.id;
-        
       }
       return token;
     },
@@ -103,5 +116,3 @@ export const authOptions: NextAuthOptions = {
 };
 
 export const getServerAuthSession = () => getServerSession(authOptions);
-
-

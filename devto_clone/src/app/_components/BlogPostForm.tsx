@@ -14,7 +14,6 @@ interface CodeBlockProps {
   className?: string;
   children: React.ReactNode;
 }
-
 export default function BlogPostForm({ isNewPost = true, post }: { isNewPost?: boolean; post?: { name?: string; content?: string; tags?: string[] } | null }) {
   const [title, setTitle] = useState(post?.name || "");
   const [content, setContent] = useState(post?.content || "");
@@ -59,7 +58,6 @@ export default function BlogPostForm({ isNewPost = true, post }: { isNewPost?: b
       content.substring(0, start) + replacement + content.substring(end)
     );
   };
-
   if (status === "loading") {
     return <div>Loading...</div>;
   }
