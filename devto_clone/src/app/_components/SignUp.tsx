@@ -14,59 +14,80 @@ export default function SignUp() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    const response = await fetch('/api/auth/signup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, name }),
-    });
-
-    if (response.ok) {
-      const result = await signIn('credentials', {
-        email,
-        password,
-        redirect: false,
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, name }),
       });
-      if (result?.error) {
-        setError('Error signing in after registration');
+
+      if (response.ok) {
+        const result = await signIn('credentials', {
+          email,
+          password,
+          redirect: false,
+        });
+        if (result?.error) {
+          setError('Error signing in after registration');
+        } else {
+          router.push('/');
+        }
       } else {
-        router.push('/');
+        const data = await response.json();
+        setError(data.error || 'Error creating user');
       }
-    } else {
-      const data = await response.json();
-      setError(data.message || 'Error creating user');
+    } catch (error) {
+      setError('An unexpected error occurred');
+      console.error(error);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {error && <p className="text-red-500">{error}</p>}
-      <input
-        type="text"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder="Name"
-        required
-        className="w-full rounded border p-2 text-black"
-      />
-      <input
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="Email"
-        required
-        className="w-full rounded border p-2 text-black"
-      />
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Password"
-        required
-        className="w-full rounded border p-2 text-black"
-      />
-      <button type="submit" className="w-full rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600">
-        Sign Up
-      </button>
-    </form>
+    <div className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {error && <p className="text-red-500">{error}</p>}
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Name"
+          required
+          className="w-full rounded border p-2 text-black"
+        />
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
+          required
+          className="w-full rounded border p-2 text-black"
+        />
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password"
+          required
+          className="w-full rounded border p-2 text-black"
+        />
+        <button type="submit" className="w-full rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600">
+          Sign Up
+        </button>
+      </form>
+      <div className="flex flex-col space-y-2">
+        <button
+          onClick={() => signIn('github')}
+          className="w-full rounded bg-gray-800 px-4 py-2 text-white hover:bg-gray-700"
+        >
+          Sign up with GitHub
+        </button>
+        <button
+          onClick={() => signIn('google')}
+          className="w-full rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
+        >
+          Sign up with Google
+        </button>
+      </div>
+    </div>
   );
 }

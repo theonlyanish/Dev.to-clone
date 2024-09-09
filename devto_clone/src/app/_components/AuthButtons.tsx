@@ -1,12 +1,16 @@
+'use client';
+
 import Link from "next/link";
-import { signOut } from "next-auth/react";
-import { Session } from "next-auth";
+import { signOut, useSession } from "next-auth/react";
 
-interface AuthButtonsProps {
-  session: Session | null;
-}
+export default function AuthButtons() {
+  const { data: session, status } = useSession();
+  
 
-export default function AuthButtons({ session }: AuthButtonsProps) {
+  if (status === 'loading') {
+    return <div>Loading...</div>;
+  }
+
   if (session) {
     return (
       <button

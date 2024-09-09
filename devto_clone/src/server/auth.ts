@@ -6,11 +6,12 @@ import {
 } from "next-auth";
 import { type Adapter } from "next-auth/adapters";
 import CredentialsProvider from "next-auth/providers/credentials";
-import bcrypt from "bcrypt";
+import GitHubProvider from "next-auth/providers/github";
+import GoogleProvider from "next-auth/providers/google";
 
 import { env } from "~/env";
 import { db } from "~/server/db";
-
+import bcrypt from 'bcrypt';
 declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
@@ -21,13 +22,20 @@ declare module "next-auth" {
 
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    session: ({ session, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
-      },
-    }),
+    session: async ({ session, user }) => {
+      if (session.user) {
+        session.user.id = user.id;
+        
+      }
+      return session;
+    },
+    jwt: async ({ token, user }) => {
+      if (user) {
+        token.id = user.id;
+        
+      }
+      return token;
+    },
   },
   adapter: PrismaAdapter(db) as Adapter,
   providers: [
@@ -54,28 +62,19 @@ export const authOptions: NextAuthOptions = {
         return { id: user.id, email: user.email, name: user.name };
       }
     }),
+    GitHubProvider({
+      clientId: env.GITHUB_CLIENT_ID,
+      clientSecret: env.GITHUB_CLIENT_SECRET,
+    }),
+    GoogleProvider({
+      clientId: env.GOOGLE_CLIENT_ID,
+      clientSecret: env.GOOGLE_CLIENT_SECRET,
+    }),
   ],
+  secret: env.NEXTAUTH_SECRET,
   pages: {
     signIn: "/login",
   },
 };
 
 export const getServerAuthSession = () => getServerSession(authOptions);
-
-export async function createUser(email: string, password: string, name: string) {
-  const existingUser = await db.user.findUnique({ where: { email } });
-  if (existingUser) {
-    throw new Error("User already exists");
-  }
-
-  const hashedPassword = await bcrypt.hash(password, 10);
-  const user = await db.user.create({
-    data: {
-      email,
-      password: hashedPassword,
-      name,
-    },
-  });
-
-  return { id: user.id, email: user.email, name: user.name };
-}

@@ -5,10 +5,11 @@ import { api, HydrateClient } from "~/trpc/server";
 import { ThemeToggle } from "./_components/ThemeToggle";
 import AuthButtons from "./_components/AuthButtons";
 import { ClientProvider } from "./_components/ClientProvider";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "~/server/auth";
 
 export default async function Home() {
-  const hello = await api.post.hello({ text: "from tRPC" });
-  const session = await getServerAuthSession();
+  const session = await getServerSession(authOptions);
 
   void api.post.getLatest.prefetch();
 
@@ -20,7 +21,7 @@ export default async function Home() {
             <h1 className="text-2xl font-bold">ByteInk</h1>
             <div className="flex items-center space-x-4">
               <ThemeToggle />
-              <AuthButtons session={session} />
+              <AuthButtons />
               {session && (
                 <Link
                   href="/new"
@@ -36,7 +37,14 @@ export default async function Home() {
               <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
                 Create <span className="text-blue-500 dark:text-purple-400">T3</span> App
               </h1>
-              {/* Rest of the content */}
+              {session ? (
+                <div>
+                  <p>Welcome, {session.user?.name}!</p>
+                  <p>Email: {session.user?.email}</p>
+                </div>
+              ) : (
+                <p>Please sign in to see your information.</p>
+              )}
             </div>
           </main>
         </div>
