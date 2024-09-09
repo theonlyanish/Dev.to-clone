@@ -22,11 +22,35 @@ declare module "next-auth" {
 
 export const authOptions: NextAuthOptions = {
   callbacks: {
+    signIn: async ({ user, account, profile, email, credentials }) => {
+      console.log("SignIn callback:", { user, account, profile, email });
+      
+      if (account?.provider === 'google' || account?.provider === 'github') {
+        const existingUser = await db.user.findUnique({
+          where: { email: user.email ?? undefined },
+        });
+
+        if (!existingUser) {
+          await db.user.create({
+            data: {
+              name: user.name,
+              email: user.email,
+              image: user.image,
+            },
+          });
+        }
+
+        return '/';
+      }
+      
+      return true;
+    },
     session: async ({ session, user }) => {
       if (session.user) {
         session.user.id = user.id;
         
       }
+      console.log("Session callback:", { session, user });
       return session;
     },
     jwt: async ({ token, user }) => {
@@ -52,7 +76,7 @@ export const authOptions: NextAuthOptions = {
         const user = await db.user.findUnique({
           where: { email: credentials.email },
         });
-        if (!user) {
+        if (!user || !user.password) {
           return null;
         }
         const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
@@ -78,3 +102,5 @@ export const authOptions: NextAuthOptions = {
 };
 
 export const getServerAuthSession = () => getServerSession(authOptions);
+
+

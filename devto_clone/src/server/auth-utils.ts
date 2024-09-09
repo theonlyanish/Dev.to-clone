@@ -10,6 +10,11 @@ export async function verifyPassword(email: string, password: string) {
     return null;
   }
 
+  if (!user.password) {
+
+    return { id: user.id, email: user.email, name: user.name };
+  }
+
   const isPasswordValid = await bcrypt.compare(password, user.password);
 
   if (!isPasswordValid) {

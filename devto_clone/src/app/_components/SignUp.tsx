@@ -14,19 +14,23 @@ export default function SignUp() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    console.log("Submitting signup form with data:", { email, password, name });
     try {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, name }),
       });
+      console.log("Signup response:", response);
 
       if (response.ok) {
+        console.log("Signup successful, attempting to sign in");
         const result = await signIn('credentials', {
           email,
           password,
           redirect: false,
         });
+        console.log("Sign in result:", result);
         if (result?.error) {
           setError('Error signing in after registration');
         } else {
@@ -34,11 +38,12 @@ export default function SignUp() {
         }
       } else {
         const data = await response.json();
+        console.error("Signup error response:", data);
         setError(data.error || 'Error creating user');
       }
     } catch (error) {
+      console.error("Unexpected error during signup:", error);
       setError('An unexpected error occurred');
-      console.error(error);
     }
   };
 
