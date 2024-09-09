@@ -11,7 +11,8 @@ import GoogleProvider from "next-auth/providers/google";
 
 import { env } from "~/env";
 import { db } from "~/server/db";
-import bcrypt from 'bcrypt';
+import { verifyPassword, hashPassword } from "~/server/auth-utils";
+
 declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
@@ -79,7 +80,7 @@ export const authOptions: NextAuthOptions = {
         if (!user || !user.password) {
           return null;
         }
-        const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+        const isPasswordValid = await verifyPassword(credentials.email, credentials.password);
         if (!isPasswordValid) {
           return null;
         }

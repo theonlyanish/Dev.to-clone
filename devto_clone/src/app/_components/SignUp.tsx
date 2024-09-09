@@ -1,55 +1,15 @@
 'use client';
 
+import React from 'react';
+import { useAuthForm } from '../hook/useAuthForm';
 import { signIn } from 'next-auth/react';
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
 
 export default function SignUp() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [error, setError] = useState('');
-  const router = useRouter();
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    console.log("Submitting signup form with data:", { email, password, name });
-    try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, name }),
-      });
-      console.log("Signup response:", response);
-
-      if (response.ok) {
-        console.log("Signup successful, attempting to sign in");
-        const result = await signIn('credentials', {
-          email,
-          password,
-          redirect: false,
-        });
-        console.log("Sign in result:", result);
-        if (result?.error) {
-          setError('Error signing in after registration');
-        } else {
-          router.push('/');
-        }
-      } else {
-        const data = await response.json();
-        console.error("Signup error response:", data);
-        setError(data.error || 'Error creating user');
-      }
-    } catch (error) {
-      console.error("Unexpected error during signup:", error);
-      setError('An unexpected error occurred');
-    }
-  };
+  const { email, setEmail, password, setPassword, name, setName, error, handleSubmit } = useAuthForm();
 
   return (
     <div className="space-y-4">
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={(e) => handleSubmit(e, true)} className="space-y-4">
         {error && <p className="text-red-500">{error}</p>}
         <input
           type="text"

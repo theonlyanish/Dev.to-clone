@@ -1,34 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
+import { useAuthForm } from '../hook/useAuthForm';
 import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const router = useRouter();
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    const result = await signIn('credentials', {
-      email,
-      password,
-      redirect: false,
-    });
-
-    if (result?.error) {
-      setError('Invalid email or password');
-    } else {
-      router.push('/');
-    }
-  };
+  const { email, setEmail, password, setPassword, error, handleSubmit } = useAuthForm();
 
   return (
     <div className="space-y-4">
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={(e) => handleSubmit(e, false)} className="space-y-4">
         {error && <p className="text-red-500">{error}</p>}
         <input
           type="email"

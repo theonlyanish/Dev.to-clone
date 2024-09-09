@@ -7,14 +7,6 @@ import {
 } from "~/server/api/trpc";
 
 export const postRouter = createTRPCRouter({
-  hello: publicProcedure
-    .input(z.object({ text: z.string() }))
-    .query(({ input }) => {
-      return {
-        greeting: `Hello ${input.text}`,
-      };
-    }),
-
   create: protectedProcedure
     .input(z.object({ 
       name: z.string().min(1), 
@@ -31,16 +23,36 @@ export const postRouter = createTRPCRouter({
         },
       });
     }),
-  getLatest: protectedProcedure.query(async ({ ctx }) => {
-    const post = await ctx.db.post.findFirst({
+
+  getAll: publicProcedure.query(({ ctx }) => {
+    return ctx.db.post.findMany({
       orderBy: { createdAt: "desc" },
-      where: { createdBy: { id: ctx.session.user.id } },
+      include: { createdBy: true },
     });
-
-    return post ?? null;
   }),
 
-  getSecretMessage: protectedProcedure.query(() => {
-    return "you can now see this secret message!";
-  }),
+  getById: publicProcedure
+    .input(z.object({ id: z.number() }))
+    .query(({ ctx, input }) => {
+      return ctx.db.post.findUnique({
+        where: { id: input.id },
+        include: { createdBy: true },
+      });
+    }),
+
+  delete: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const post = await ctx.db.post.findUnique({
+        where: { id: input.id },
+      });
+
+      if (!post || post.createdById !== ctx.session.user.id) {
+        throw new Error("Not authorized");
+      }
+
+      return ctx.db.post.delete({
+        where: { id: input.id },
+      });
+    }),
 });

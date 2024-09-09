@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -8,10 +8,10 @@ import { atomDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { api } from "~/trpc/react";
 import { useSession } from "next-auth/react";
 
-export default function NewBlogPostForm() {
-    const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [tags, setTags] = useState("");
+export default function BlogPostForm({ isNewPost = true, post = null }) {
+  const [title, setTitle] = useState(post?.name || "");
+  const [content, setContent] = useState(post?.content || "");
+  const [tags, setTags] = useState(post?.tags?.join(", ") || "");
   const [showPreview, setShowPreview] = useState(false);
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -61,8 +61,9 @@ export default function NewBlogPostForm() {
     return null;
   }
 
+  return (
     <div className="container mx-auto mt-8 max-w-2xl">
-      <h1 className="mb-6 text-3xl font-bold">Create a New Blog Post</h1>
+      <h1 className="mb-6 text-3xl font-bold">{isNewPost ? "Create a New Blog Post" : "Edit Blog Post"}</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <button
@@ -166,5 +167,5 @@ export default function NewBlogPostForm() {
         </div>
       )}
     </div>
-  
+  );
 }

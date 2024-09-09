@@ -4,11 +4,12 @@ import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
 
 import { TRPCReactProvider } from "~/trpc/react";
-import { Providers } from "./Providers";
-import { ThemeProvider } from './ThemeContext';
+import { ThemeProvider } from './ThemeProvider';
+import { ClientProvider } from "./_components/ClientProvider";
 //import { SessionProvider } from "next-auth/react";
 //import SessionProvider from "./_components/SessionProvider";
 import SessionProvider from "next-auth/react";
+import CredentialsProvider from 'next-auth/providers/credentials'
 
 
 export const metadata: Metadata = {
@@ -23,11 +24,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${GeistSans.variable}`}>
       <body>
-        <Providers>
+        <ClientProvider>
           <ThemeProvider>
             <TRPCReactProvider>{children}</TRPCReactProvider>
           </ThemeProvider>
-        </Providers>
+        </ClientProvider>
       </body>
     </html>
   );

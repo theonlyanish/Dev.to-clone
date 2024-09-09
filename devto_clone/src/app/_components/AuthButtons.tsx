@@ -15,12 +15,25 @@ export default function AuthButtons() {
 
   if (session) {
     return (
-      <button
-        onClick={() => signOut()}
-        className="rounded-full bg-red-500 px-4 py-2 text-white hover:bg-red-600"
-      >
-        Log Out
-      </button>
+      <div className="flex items-center space-x-4">
+        <img
+          src={session.user.image || '/default-profile.png'}
+          alt="Profile"
+          className="w-8 h-8 rounded-full"
+        />
+        <Link
+          href="/create-post"
+          className="rounded-full bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 dark:bg-purple-600 dark:hover:bg-purple-700"
+        >
+          Create Blog
+        </Link>
+        <button
+          onClick={() => signOut()}
+          className="rounded-full bg-red-500 px-4 py-2 text-white hover:bg-red-600"
+        >
+          Log Out
+        </button>
+      </div>
     );
   }
 
