@@ -9,10 +9,15 @@ export function LatestPost() {
 
   const utils = api.useUtils();
   const [name, setName] = useState("");
+  const [content, setContent] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
+
   const createPost = api.post.create.useMutation({
     onSuccess: async () => {
       await utils.post.invalidate();
       setName("");
+      setContent("");
+      setTags([]);
     },
   });
 
@@ -26,7 +31,7 @@ export function LatestPost() {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          createPost.mutate({ name });
+          createPost.mutate({ name, content, tags });
         }}
         className="flex flex-col gap-2"
       >
@@ -35,6 +40,19 @@ export function LatestPost() {
           placeholder="Title"
           value={name}
           onChange={(e) => setName(e.target.value)}
+          className="w-full rounded-full px-4 py-2 text-black"
+        />
+        <textarea
+          placeholder="Content"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          className="w-full rounded-full px-4 py-2 text-black"
+        />
+        <input
+          type="text"
+          placeholder="Tags (comma-separated)"
+          value={tags.join(", ")}
+          onChange={(e) => setTags(e.target.value.split(", ").map((tag) => tag.trim()))}
           className="w-full rounded-full px-4 py-2 text-black"
         />
         <button
