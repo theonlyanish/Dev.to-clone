@@ -49,7 +49,6 @@ export const authOptions: NextAuthOptions = {
     session: async ({ session, user }) => {
       if (session.user) {
         session.user.id = user.id;
-        
       }
       console.log("Session callback:", { session, user });
       return session;
@@ -57,7 +56,6 @@ export const authOptions: NextAuthOptions = {
     jwt: async ({ token, user }) => {
       if (user) {
         token.id = user.id;
-        
       }
       return token;
     },
@@ -103,5 +101,3 @@ export const authOptions: NextAuthOptions = {
 };
 
 export const getServerAuthSession = () => getServerSession(authOptions);
-
-
