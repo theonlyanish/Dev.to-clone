@@ -7,8 +7,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { atomDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { api } from "~/trpc/react";
 import { useSession } from "next-auth/react";
-
-export default function BlogPostForm({ isNewPost = true, post = null }) {
+export default function BlogPostForm({ isNewPost = true, post }: { isNewPost?: boolean; post?: { name?: string; content?: string; tags?: string[] } | null }) {
   const [title, setTitle] = useState(post?.name || "");
   const [content, setContent] = useState(post?.content || "");
   const [tags, setTags] = useState(post?.tags?.join(", ") || "");
@@ -149,7 +148,7 @@ export default function BlogPostForm({ isNewPost = true, post = null }) {
                       style={atomDark}
                       language={match[1]}
                       PreTag="div"
-                      {...props}
+                      {...(props as any)} // Type assertion to bypass TypeScript error
                     >
                       {String(children).replace(/\n$/, '')}
                     </SyntaxHighlighter>
