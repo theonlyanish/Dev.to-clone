@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
-export function useAuthForm() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [error, setError] = useState('');
+export const useAuthForm = () => {
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [name, setName] = useState<string>('');
+  const [error, setError] = useState<string>('');
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent, isSignUp: boolean) => {
@@ -48,8 +48,8 @@ export function useAuthForm() {
           router.push('/');
         }
       }
-    } catch (error) {
-      setError('An unexpected error occurred');
+    } catch (error: any) {
+      setError(error?.message || 'An unexpected error occurred');
     }
   };
 
@@ -63,4 +63,4 @@ export function useAuthForm() {
     error,
     handleSubmit,
   };
-}
+};
