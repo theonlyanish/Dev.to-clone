@@ -1,4 +1,5 @@
 import Link from "next/link";
+
 import { getServerAuthSession } from "~/server/auth";
 import { api } from "~/trpc/server";
 import { ThemeToggle } from "./_components/ThemeToggle";
@@ -17,6 +18,14 @@ export default async function Home() {
           <div className="flex items-center space-x-4">
             <ThemeToggle />
             <AuthButtons />
+            {session && (
+              <Link
+                href="/create-post"
+                className="rounded-full bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 dark:bg-purple-600 dark:hover:bg-purple-700"
+              >
+                Create a new blog
+              </Link>
+            )}
           </div>
         </header>
         <main className="container mx-auto mt-8 px-4">

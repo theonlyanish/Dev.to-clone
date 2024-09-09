@@ -12,7 +12,7 @@ import EmailProvider from "next-auth/providers/email";
 
 import { env } from "~/env";
 import { db } from "~/server/db";
-import { verifyPassword } from "~/server/auth-utils";
+import { verifyPassword, hashPassword } from "~/server/auth-utils";
 
 declare module "next-auth" {
   interface Session extends DefaultSession {
@@ -76,5 +76,55 @@ export const authOptions: NextAuthOptions = {
         return { id: user.id, email: user.email, name: user.name };
       },
     }),
-  ]
-}
+  ],
+  callbacks: {
+    signIn: async ({ user, account, profile, email, credentials }) => {
+      console.log("SignIn callback:", { user, account, profile, email });
+
+      if (account?.provider === "google" || account?.provider === "github") {
+        const existingUser = await db.user.findUnique({
+          where: { email: user.email ?? undefined },
+        });
+
+        if (!existingUser) {
+          const newUser = await db.user.create({
+            data: {
+              name: user.name,
+              email: user.email,
+              image: user.image,
+            },
+          });
+
+          await db.account.create({
+            data: {
+              userId: newUser.id,
+              type: "oauth",
+              provider: account.provider,
+              providerAccountId: account.id as string,
+              access_token: account.access_token ?? undefined,
+              refresh_token: account.refresh_token ?? undefined,
+              expires_at: account.expires_at ?? undefined,
+              token_type: account.token_type ?? undefined,
+              scope: account.scope ?? undefined,
+              id_token: account.id_token ?? undefined,
+              session_state: account.session_state ?? undefined,
+            },
+          });
+        }
+        return "/";
+      }
+
+      return true;
+    },
+  },
+  adapter: PrismaAdapter(db) as Adapter,
+  session: {
+    strategy: "jwt",
+  },
+  pages: {
+    signIn: "/login",
+    verifyRequest: "/verify-request", // Custom verification request page
+  },
+};
+
+export const getServerAuthSession = () => getServerSession(authOptions);
