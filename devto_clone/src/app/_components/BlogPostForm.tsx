@@ -7,6 +7,14 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { atomDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { api } from "~/trpc/react";
 import { useSession } from "next-auth/react";
+
+interface CodeBlockProps {
+  node?: any;
+  inline?: boolean;
+  className?: string;
+  children: React.ReactNode;
+}
+
 export default function BlogPostForm({ isNewPost = true, post }: { isNewPost?: boolean; post?: { name?: string; content?: string; tags?: string[] } | null }) {
   const [title, setTitle] = useState(post?.name || "");
   const [content, setContent] = useState(post?.content || "");
@@ -141,14 +149,14 @@ export default function BlogPostForm({ isNewPost = true, post }: { isNewPost?: b
           <div className="prose prose-invert max-w-none rounded border p-4">
             <ReactMarkdown
               components={{
-                code({node, inline, className, children, ...props}) {
+                code: ({ node, inline, className, children, ...props }: any) => {
                   const match = /language-(\w+)/.exec(className || '')
                   return !inline && match ? (
                     <SyntaxHighlighter
                       style={atomDark}
                       language={match[1]}
                       PreTag="div"
-                      {...(props as any)} // Type assertion to bypass TypeScript error
+                      {...props}
                     >
                       {String(children).replace(/\n$/, '')}
                     </SyntaxHighlighter>
