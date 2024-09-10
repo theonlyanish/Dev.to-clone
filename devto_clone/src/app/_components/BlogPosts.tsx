@@ -4,46 +4,37 @@ import { api } from "~/trpc/react";
 import { useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/Card";
 import { Skeleton } from "./ui/Skeleton";
+import Link from "next/link";
 
 export default function BlogPosts() {
-  const { data: posts, isLoading, refetch } = api.post.getAll.useQuery();
-  const { data: session } = useSession();
-  const deletePost = api.post.delete.useMutation({
-    onSuccess: () => refetch(),
-  });
+  const { data: posts, isLoading } = api.post.getAll.useQuery();
 
   if (isLoading) return <PostFeedSkeleton />;
   if (!posts || posts.length === 0) return <NoBlogsMessage />;
 
   return (
-    <div className="space-y-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {posts.map((post) => (
-        <Card key={post.id} className="overflow-hidden border-0 bg-white shadow-none dark:bg-zinc-900">
-          <CardHeader>
-            <CardTitle className="text-xl font-bold">{post.name}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>{post.content}</p>
-            <div className="mt-2">
-              {post.tags.map((tag, index) => (
-                <span key={index} className="mr-2 text-sm text-gray-500">
-                  #{tag}
-                </span>
-              ))}
-            </div>
-            <p className="text-sm text-gray-500 mt-2">
-              By {post.createdBy.name} on {new Date(post.createdAt).toLocaleDateString()}
-            </p>
-            {session && session.user.id === post.createdById && (
-              <button
-                onClick={() => deletePost.mutate({ id: post.id })}
-                className="mt-2 bg-red-500 text-white p-1 rounded text-sm"
-              >
-                Delete
-              </button>
-            )}
-          </CardContent>
-        </Card>
+        <Link href={`/post/${post.id}`} key={post.id}>
+          <Card className="hover:shadow-lg transition-shadow duration-200">
+            <CardHeader>
+              <CardTitle className="text-xl font-bold">{post.name}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-500 mb-2">
+                By {post.createdBy.name} on {new Date(post.createdAt).toLocaleDateString()}
+              </p>
+              <p className="line-clamp-3">{post.content}</p>
+              <div className="mt-2">
+                {post.tags.map((tag, index) => (
+                  <span key={index} className="mr-2 text-sm text-blue-500">
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
       ))}
     </div>
   );
