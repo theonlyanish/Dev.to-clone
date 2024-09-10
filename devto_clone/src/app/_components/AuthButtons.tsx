@@ -22,6 +22,12 @@ export default function AuthButtons() {
           className="w-8 h-8 rounded-full"
         />
         <Link
+          href="/profile"
+          className="text-blue-500 hover:text-blue-600"
+        >
+          Profile
+        </Link>
+        <Link
           href="/create-post"
           className="rounded-full bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 dark:bg-purple-600 dark:hover:bg-purple-700"
         >

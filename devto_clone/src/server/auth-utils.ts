@@ -11,6 +11,7 @@ export async function verifyPassword(email: string, password: string) {
   }
 
   if (!user.password) {
+
     return { id: user.id, email: user.email, name: user.name };
   }
 

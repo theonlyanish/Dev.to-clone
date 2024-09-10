@@ -66,8 +66,8 @@ model User {
   sessions      Session[]
   posts         Post[]
   password      String?
+  bio           String?
 }
-
 
 
 
