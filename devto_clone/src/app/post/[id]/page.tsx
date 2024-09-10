@@ -11,24 +11,24 @@ export default async function BlogPost({ params }: { params: { id: string } }) {
   }
 
   return (
-    <div className="container mx-auto max-w-2xl py-8">
-      <Link href="/" className="flex items-center text-blue-500 hover:underline mb-4">
+    <div className="container mx-auto max-w-2xl py-8 bg-white dark:bg-lyra-dark text-black dark:text-white">
+      <Link href="/" className="flex items-center text-lyra-purple hover:underline mb-4">
         <ArrowLeft className="mr-2" size={20} />
         Back to Home
       </Link>
       <h1 className="text-3xl font-bold mb-2">{post.name}</h1>
-      <div className="flex justify-between items-center text-sm text-gray-500 mb-4">
+      <div className="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400 mb-4">
         <span>By {post.createdBy.name}</span>
         <span>{new Date(post.createdAt).toLocaleDateString()}</span>
       </div>
       <div className="mb-6">
         {post.tags.map((tag, index) => (
-          <span key={index} className="mr-2 text-sm text-blue-500">
+          <span key={index} className="mr-2 text-sm text-lyra-purple">
             #{tag}
           </span>
         ))}
       </div>
-      <div className="prose prose-lg max-w-none">
+      <div className="prose prose-lg max-w-none dark:prose-invert">
         {post.content}
       </div>
     </div>

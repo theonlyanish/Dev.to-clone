@@ -15,7 +15,7 @@ export default function BlogPosts() {
     <div className="space-y-4">
       {posts.map((post) => (
         <Link href={`/post/${post.id}`} key={post.id}>
-          <Card className="hover:shadow-md transition-shadow duration-200">
+          <Card className="hover:shadow-md transition-shadow duration-200 dark:bg-lyra-dark dark:border-lyra-purple">
             <CardContent className="p-6">
               <div className="flex items-center mb-4">
                 <img
@@ -25,13 +25,13 @@ export default function BlogPosts() {
                 />
                 <div>
                   <p className="font-semibold">{post.createdBy.name}</p>
-                  <p className="text-sm text-gray-500">{new Date(post.createdAt).toLocaleDateString()}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{new Date(post.createdAt).toLocaleDateString()}</p>
                 </div>
               </div>
               <h3 className="text-xl font-bold mb-2">{post.name}</h3>
               <div className="mb-4">
                 {post.tags.map((tag, index) => (
-                  <span key={index} className="mr-2 text-sm text-blue-500">
+                  <span key={index} className="mr-2 text-sm text-lyra-purple">
                     #{tag}
                   </span>
                 ))}

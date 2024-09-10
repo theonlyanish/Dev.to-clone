@@ -9,6 +9,10 @@ export default {
       fontFamily: {
         sans: ["var(--font-geist-sans)", ...fontFamily.sans],
       },
+      colors: {
+        'lyra-purple': '#8A2BE2',
+        'lyra-dark': '#1A1A1A',
+      },
     },
   },
   plugins: [
