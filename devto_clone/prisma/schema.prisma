@@ -25,7 +25,9 @@ model Post {
   createdBy   User   @relation(fields: [createdById], references: [id])
   createdById String
 
+  coverImageUrl String?
   @@index([name])
+  @@index([createdById, createdAt])
 }
 
 // Necessary for Next auth

@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { atomDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { api } from "~/trpc/react";
 import { useSession } from "next-auth/react";
+import { uploadToS3 } from "~/app/utils/s3";
 
 interface CodeBlockProps {
   node?: any;
@@ -21,6 +22,8 @@ export default function BlogPostForm({ isNewPost = true, post }: { isNewPost?: b
   const [showPreview, setShowPreview] = useState(false);
   const router = useRouter();
   const { data: session, status } = useSession();
+  const [coverImage, setCoverImage] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -34,18 +37,47 @@ export default function BlogPostForm({ isNewPost = true, post }: { isNewPost?: b
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    createPost.mutate({ 
-      name: title, 
-      content,
-      tags: tags.split(',').map(tag => tag.trim())
-    });
+    console.log("Submit button clicked");
+    let coverImageUrl = "";
+    if (coverImage) {
+      console.log("Uploading cover image");
+      try {
+        const buffer = await coverImage.arrayBuffer();
+        const key = `blog-covers/${Date.now()}-${coverImage.name}`;
+        coverImageUrl = await uploadToS3(new Uint8Array(buffer), key);
+        console.log("Cover image uploaded successfully:", coverImageUrl);
+      } catch (error) {
+        console.error("Error uploading cover image:", error);
+        alert("Failed to upload cover image. Please try again.");
+        return;
+      }
+    }
+    try {
+      console.log("Creating post with data:", { title, content, tags: tags.split(',').map(tag => tag.trim()), coverImageUrl });
+      await createPost.mutateAsync({ 
+        name: title, 
+        content,
+        tags: tags.split(',').map(tag => tag.trim()),
+        coverImageUrl
+      });
+      console.log("Post created successfully");
+      router.push("/");
+    } catch (error) {
+      console.error("Error creating post:", error);
+      alert("Failed to create post. Please try again.");
+    }
   };
 
   const handleCoverImageUpload = () => {
-    // Implement image upload functionality here
-    console.log("Cover image upload clicked");
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setCoverImage(e.target.files[0]);
+    }
   };
 
   const insertFormatting = (startChars: string, endChars: string = startChars) => {
@@ -71,13 +103,27 @@ export default function BlogPostForm({ isNewPost = true, post }: { isNewPost?: b
       <h1 className="mb-6 text-3xl font-bold">{isNewPost ? "Create a New Blog Post" : "Edit Blog Post"}</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept="image/*"
+            className="hidden"
+          />
           <button
             type="button"
             onClick={handleCoverImageUpload}
             className="mb-4 rounded bg-gray-200 px-4 py-2 text-gray-700 hover:bg-gray-300"
           >
-            Add a cover image
+            {coverImage ? "Change cover image" : "Add a cover image"}
           </button>
+          {coverImage && (
+            <img
+              src={URL.createObjectURL(coverImage)}
+              alt="Cover preview"
+              className="mb-4 max-w-xs"
+            />
+          )}
         </div>
         <div>
           <label htmlFor="title" className="mb-2 block text-sm font-bold">
@@ -136,6 +182,7 @@ export default function BlogPostForm({ isNewPost = true, post }: { isNewPost?: b
             type="submit"
             className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
             disabled={createPost.isPending}
+            onClick={() => console.log("Create Post button clicked")}
           >
             {createPost.isPending ? "Creating..." : "Create Post"}
           </button>

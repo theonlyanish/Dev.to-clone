@@ -1,16 +1,19 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import { api } from '~/trpc/react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/Card";
+import { uploadToS3 } from "~/app/utils/s3";
 
 export default function ProfileComponent() {
-  const { data: session, status } = useSession();
+  const { data: session, status, update: updateSession } = useSession();
   const router = useRouter();
   const [bio, setBio] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+  const [profilePicture, setProfilePicture] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: userPosts, isLoading: postsLoading } = api.post.getUserPosts.useQuery(
     { userId: session?.user?.id ?? '' },
@@ -22,6 +25,39 @@ export default function ProfileComponent() {
       setIsEditing(false);
     },
   });
+
+  const handleProfilePictureUpload = async () => {
+    console.log("Upload new picture button clicked");
+    if (profilePicture) {
+      try {
+        console.log("Uploading profile picture");
+        const buffer = await profilePicture.arrayBuffer();
+        const key = `profile-pictures/${session?.user?.id}-${Date.now()}-${profilePicture.name}`;
+        const imageUrl = await uploadToS3(new Uint8Array(buffer), key);
+        console.log("Profile picture uploaded successfully:", imageUrl);
+        
+        console.log("Updating profile with new image URL");
+        await updateProfile.mutateAsync({ image: imageUrl });
+        console.log("Profile updated successfully");
+        
+        console.log("Updating session");
+        await updateSession();
+        console.log("Session updated successfully");
+        
+        setProfilePicture(null);
+        alert("Profile picture updated successfully!");
+      } catch (error) {
+        console.error("Error in handleProfilePictureUpload:", error);
+        if (error instanceof Error) {
+          console.error("Error message:", error.message);
+          console.error("Error stack:", error.stack);
+        }
+        alert(`Failed to update profile picture. Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
+    } else {
+      console.log("No profile picture selected");
+    }
+  };
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -45,11 +81,27 @@ export default function ProfileComponent() {
         </CardHeader>
         <CardContent>
           <div className="mb-4">
-            <img
-              src={session.user.image || '/default-profile.png'}
-              alt="Profile"
-              className="w-24 h-24 rounded-full mx-auto"
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={(e) => e.target.files?.[0] && setProfilePicture(e.target.files[0])}
+              accept="image/*"
+              className="hidden"
             />
+            <img
+              src={profilePicture ? URL.createObjectURL(profilePicture) : (session.user.image || '/default-profile.png')}
+              alt="Profile"
+              className="w-24 h-24 rounded-full mx-auto cursor-pointer"
+              onClick={() => fileInputRef.current?.click()}
+            />
+            {profilePicture && (
+              <button
+                onClick={handleProfilePictureUpload}
+                className="mt-2 bg-blue-500 text-white px-4 py-2 rounded"
+              >
+                Upload New Picture
+              </button>
+            )}
           </div>
           <h2 className="text-2xl font-bold mb-2">{session.user.name}</h2>
           <p className="text-gray-600 mb-4">{session.user.email}</p>

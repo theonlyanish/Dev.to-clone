@@ -12,6 +12,9 @@ const config = {
     typescript: {
         ignoreBuildErrors: true,
       },
+    images: {
+        domains: ['byteink.s3.amazonaws.com'],
+    },
 };
 
 export default config;
