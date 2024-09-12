@@ -13,8 +13,9 @@ interface CodeBlockProps {
   node?: any;
   inline?: boolean;
   className?: string;
-  children: React.ReactNode;
+  children?: React.ReactNode; // Make children optional
 }
+
 export default function BlogPostForm({ isNewPost = true, post }: { isNewPost?: boolean; post?: { name?: string; content?: string; tags?: string[] } | null }) {
   const [title, setTitle] = useState(post?.name || "");
   const [content, setContent] = useState(post?.content || "");
@@ -90,6 +91,7 @@ export default function BlogPostForm({ isNewPost = true, post }: { isNewPost?: b
       content.substring(0, start) + replacement + content.substring(end)
     );
   };
+
   if (status === "loading") {
     return <div>Loading...</div>;
   }
@@ -194,8 +196,8 @@ export default function BlogPostForm({ isNewPost = true, post }: { isNewPost?: b
           <div className="prose prose-invert max-w-none rounded border p-4">
             <ReactMarkdown
               components={{
-                code: ({ node, inline, className, children, ...props }: any) => {
-                  const match = /language-(\w+)/.exec(className || '')
+                code: ({ node, inline, className, children, ...props }: CodeBlockProps) => {
+                  const match = /language-(\w+)/.exec(className || '');
                   return !inline && match ? (
                     <SyntaxHighlighter
                       style={atomDark}
@@ -209,7 +211,7 @@ export default function BlogPostForm({ isNewPost = true, post }: { isNewPost?: b
                     <code className={className} {...props}>
                       {children}
                     </code>
-                  )
+                  );
                 }
               }}
             >

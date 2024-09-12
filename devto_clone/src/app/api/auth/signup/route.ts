@@ -42,6 +42,7 @@ export async function POST(req: Request) {
         email,
         password: hashedPassword,
         name,
+        image: 'https://byteink.s3.amazonaws.com/default.png',
       },
     });
     console.log("Created user:", user);

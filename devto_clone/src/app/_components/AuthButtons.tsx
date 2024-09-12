@@ -17,7 +17,7 @@ export default function AuthButtons() {
     return (
       <div className="flex items-center space-x-4">
         <img
-          src={session.user.image || '/default-profile.png'}
+          src={session.user.image || 'https://byteink.s3.amazonaws.com/default.png'}
           alt="Profile"
           className="w-8 h-8 rounded-full"
         />

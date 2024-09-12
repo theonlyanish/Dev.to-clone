@@ -33,6 +33,7 @@ export default function ProfileComponent() {
         console.log("Uploading profile picture");
         const buffer = await profilePicture.arrayBuffer();
         const key = `profile-pictures/${session?.user?.id}-${Date.now()}-${profilePicture.name}`;
+        console.log("Generated S3 key:", key);
         const imageUrl = await uploadToS3(new Uint8Array(buffer), key);
         console.log("Profile picture uploaded successfully:", imageUrl);
         
@@ -89,7 +90,7 @@ export default function ProfileComponent() {
               className="hidden"
             />
             <img
-              src={profilePicture ? URL.createObjectURL(profilePicture) : (session.user.image || '/default-profile.png')}
+              src={profilePicture ? URL.createObjectURL(profilePicture) : (session.user.image || 'https://byteink.s3.amazonaws.com/default.png')}
               alt="Profile"
               className="w-24 h-24 rounded-full mx-auto cursor-pointer"
               onClick={() => fileInputRef.current?.click()}
