@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import {
@@ -43,21 +44,20 @@ export const postRouter = createTRPCRouter({
   }),
   
   delete: protectedProcedure
-    .input(z.object({ id: z.number() }))
-    .mutation(async ({ ctx, input }) => {
-      const post = await ctx.db.post.findUnique({
-        where: { id: input.id },
-      });
+  .input(z.object({ id: z.number() }))
+  .mutation(async ({ ctx, input }) => {
+    const post = await ctx.db.post.findUnique({
+      where: { id: input.id },
+    });
 
-      if (!post || post.createdById !== ctx.session.user.id) {
-        throw new Error("Not authorized");
-      }
+    if (!post || post.createdById !== ctx.session.user.id) {
+      throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Not authorized' });
+    }
 
-      return ctx.db.post.delete({
-        where: { id: input.id },
-      });
-    }),
-
+    return ctx.db.post.delete({
+      where: { id: input.id },
+    });
+  }),
   getLatest: publicProcedure.query(({ ctx }) => {
     return ctx.db.post.findFirst({
       orderBy: { createdAt: "desc" },

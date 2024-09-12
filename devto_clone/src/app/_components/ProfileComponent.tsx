@@ -6,6 +6,8 @@ import { api } from '~/trpc/react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/Card";
 import { uploadToS3 } from "~/app/utils/s3";
+import { useMutation } from '@tanstack/react-query';
+import { UseMutationOptions } from '@tanstack/react-query';
 
 export default function ProfileComponent() {
   const { data: session, status, update: updateSession } = useSession();
@@ -15,7 +17,7 @@ export default function ProfileComponent() {
   const [profilePicture, setProfilePicture] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { data: userPosts, isLoading: postsLoading } = api.post.getUserPosts.useQuery(
+  const { data: userPosts, isLoading: postsLoading, refetch: refetchPosts } = api.post.getUserPosts.useQuery(
     { userId: session?.user?.id ?? '' },
     { enabled: !!session?.user?.id }
   );
@@ -25,6 +27,25 @@ export default function ProfileComponent() {
       setIsEditing(false);
     },
   });
+  
+  const deletePostMutation = api.post.delete.useMutation({
+    onSuccess: () => {
+      // Refetch posts after successful deletion
+      refetchPosts();
+    },
+    onError: (error) => {
+      console.error("Failed to delete post:", error);
+      alert("You are not authorized to delete this post or an error occurred.");
+    }
+  });
+
+  const deletePost = async (postId: number) => {
+    try {
+      await deletePostMutation.mutateAsync({ id: postId });
+    } catch (error) {
+      console.error("Failed to delete post:", error);
+    }
+  };
 
   const handleProfilePictureUpload = async () => {
     console.log("Upload new picture button clicked");
@@ -59,7 +80,6 @@ export default function ProfileComponent() {
       console.log("No profile picture selected");
     }
   };
-
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/login');
@@ -156,6 +176,14 @@ export default function ProfileComponent() {
                 <p className="text-sm text-gray-500 mt-2">
                   Posted on {new Date(post.createdAt).toLocaleDateString()}
                 </p>
+                {session?.user?.id === post.createdById && (
+                  <button
+                    onClick={() => deletePost(post.id)}
+                    className="mt-2 bg-red-500 text-white px-4 py-2 rounded"
+                  >
+                    Delete
+                  </button>
+                )}
               </CardContent>
             </Card>
           ))}
