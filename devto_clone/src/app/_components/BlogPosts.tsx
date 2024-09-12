@@ -17,7 +17,7 @@ export default function BlogPosts() {
     <div className="space-y-6">
       {posts.map((post) => (
         <Link href={`/post/${post.id}`} key={post.id}>
-          <Card className="hover:shadow-md transition-shadow duration-200 dark:bg-lyra-dark dark:border-lyra-purple mb-4">
+          <Card className="hover:shadow-lg transition-shadow duration-200 dark:bg-lyra-dark dark:border-lyra-purple shadow-lyra-purple mb-4">
             <CardContent className="p-6">
               <div className="flex items-center mb-4">
                 <img

@@ -3,5 +3,9 @@
 @tailwind utilities;
 
 .prose {
-  @apply prose-invert;
-}
+    @apply prose-invert;
+  }
+  
+  .shadow-lyra-purple {
+    box-shadow: 0 4px 6px -1px rgba(138, 43, 226, 0.5), 0 2px 4px -1px rgba(138, 43, 226, 0.25);
+  }
