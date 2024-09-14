@@ -6,6 +6,7 @@ import { ThemeToggle } from "./_components/ThemeToggle";
 import AuthButtons from "./_components/AuthButtons";
 import { ClientProvider } from "./_components/ClientProvider";
 import BlogPosts from "./_components/BlogPosts";
+import SearchBar from "./_components/SearchBar";
 
 export default async function Home() {
   const session = await getServerAuthSession();
@@ -41,6 +42,7 @@ export default async function Home() {
           </aside>
           <main className="flex-1">
             <h2 className="text-3xl font-bold mb-6">Latest posts</h2>
+            <SearchBar />
             <BlogPosts />
           </main>
         </div>

@@ -72,4 +72,20 @@ export const postRouter = createTRPCRouter({
         orderBy: { createdAt: "desc" },
       });
     }),
+
+  search: publicProcedure
+    .input(z.object({ query: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const posts = await ctx.db.post.findMany({
+        where: {
+          name: {
+            contains: input.query,
+            mode: 'insensitive',
+          },
+        },
+        include: { createdBy: true },
+        orderBy: { createdAt: 'desc' },
+      });
+      return posts;
+    }),
 });

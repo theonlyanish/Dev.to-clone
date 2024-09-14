@@ -6,9 +6,30 @@ import { Card, CardContent } from "./ui/Card";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 
+type Post = {
+  id: number;
+  name: string;
+  content: string;
+  tags: string[];
+  createdAt: Date;
+  createdBy: {
+    id: string;
+    name: string | null;
+    email: string | null;
+    image: string | null;
+  };
+};
 
-export default function BlogPosts() {
-  const { data: posts, isLoading } = api.post.getAll.useQuery();
+type BlogPostsProps = {
+  posts?: Post[];
+};
+
+export default function BlogPosts({ posts: propPosts }: BlogPostsProps) {
+  const { data: fetchedPosts, isLoading } = api.post.getAll.useQuery(undefined, {
+    enabled: !propPosts,
+  });
+
+  const posts = propPosts || fetchedPosts;
 
   if (isLoading) return <div>Loading...</div>;
   if (!posts || posts.length === 0) return <div>No posts found</div>;
