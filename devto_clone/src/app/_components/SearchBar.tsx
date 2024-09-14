@@ -1,8 +1,8 @@
 'use client';
-import { useState } from 'react';
+import { useState, forwardRef } from 'react';
 import { useRouter } from 'next/navigation';
 
-export default function SearchBar() {
+const SearchBar = forwardRef<HTMLInputElement>((props, ref) => {
   const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
 
@@ -12,10 +12,12 @@ export default function SearchBar() {
       router.push(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
     }
   };
+
   return (
     <form onSubmit={handleSearch} className="flex-grow max-w-md mx-4">
       <div className="relative">
         <input
+          ref={ref}
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
@@ -28,4 +30,8 @@ export default function SearchBar() {
       </div>
     </form>
   );
-}
+});
+
+SearchBar.displayName = 'SearchBar';
+
+export default SearchBar;
