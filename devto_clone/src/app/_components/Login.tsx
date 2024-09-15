@@ -9,28 +9,6 @@ export default function Login() {
   const { email, setEmail, password, setPassword, error, handleSubmit } = useAuthForm();
   const router = useRouter();
 
-  const handleBypass = async () => {
-    const response = await fetch('/api/bypass', {
-      method: 'POST',
-    });
-
-    if (response.ok) {
-      const result = await signIn('credentials', {
-        email: 'mockuser@example.com',
-        password: 'mockpassword',
-        redirect: false,
-      });
-
-      if (result?.error) {
-        console.error('Error signing in mock user:', result.error);
-      } else {
-        router.push('/profile');
-      }
-    } else {
-      console.error('Error creating mock user:', await response.json());
-    }
-  };
-
   return (
     <div className="space-y-4">
       <form onSubmit={(e) => handleSubmit(e, false)} className="space-y-4">
@@ -67,12 +45,6 @@ export default function Login() {
           className="w-full rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
         >
           Sign in with Google
-        </button>
-        <button
-          onClick={handleBypass}
-          className="w-full rounded bg-yellow-500 px-4 py-2 text-white hover:bg-yellow-600"
-        >
-          Bypass
         </button>
       </div>
     </div>
