@@ -64,6 +64,13 @@ export default function ProfileComponent({ userId }: ProfileComponentProps) {
   };
 
   const handleProfilePictureUpload = async () => {
+    console.log("Environment variables:", {
+      region: process.env.NEXT_PUBLIC_AWS_REGION,
+      bucketName: process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME,
+      hasAccessKeyId: !!process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID,
+      hasSecretAccessKey: !!process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY,
+    });
+
     console.log("Upload new picture button clicked");
     if (profilePicture) {
       try {

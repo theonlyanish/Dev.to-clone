@@ -43,7 +43,7 @@ export default function BlogPosts({ posts: propPosts }: BlogPostsProps) {
               <CardContent className="p-6">
                 <div className="flex items-center mb-4">
                   <img
-                    src={post.createdBy.image || "/default-avatar.png"}
+                    src={post.createdBy.image || "./default-avatar.png"}
                     alt={post.createdBy.name || "Author"}
                     className="w-12 h-12 rounded-full mr-4"
                   />
