@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "~/server/api/trpc";
+import { type Context } from "~/server/api/trpc";
 
 export const userRouter = createTRPCRouter({
   updateProfile: protectedProcedure
@@ -13,6 +14,20 @@ export const userRouter = createTRPCRouter({
         data: { 
           ...(input.bio && { bio: input.bio }),
           ...(input.image && { image: input.image })
+        },
+      });
+    }),
+  getById: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }: { ctx: Context; input: { id: string } }) => {
+      return ctx.db.user.findUnique({
+        where: { id: input.id },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          image: true,
+          bio: true,
         },
       });
     }),

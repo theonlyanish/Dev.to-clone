@@ -8,9 +8,24 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/Card";
 import { uploadToS3 } from "~/app/utils/s3";
 import { useMutation } from '@tanstack/react-query';
 import { UseMutationOptions } from '@tanstack/react-query';
+import { Session } from "next-auth";
 
-export default function ProfileComponent() {
-  const { data: session, status, update: updateSession } = useSession();
+interface CustomSession extends Session {
+  user: {
+    id: string;
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+    bio?: string | null;
+  }
+}
+
+interface ProfileComponentProps {
+  userId?: string;
+}
+
+export default function ProfileComponent({ userId }: ProfileComponentProps) {
+  const { data: session, status, update: updateSession } = useSession() as { data: CustomSession | null, status: string, update: () => Promise<CustomSession | null> };
   const router = useRouter();
   const [bio, setBio] = useState('');
   const [isEditing, setIsEditing] = useState(false);
@@ -18,13 +33,14 @@ export default function ProfileComponent() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: userPosts, isLoading: postsLoading, refetch: refetchPosts } = api.post.getUserPosts.useQuery(
-    { userId: session?.user?.id ?? '' },
-    { enabled: !!session?.user?.id }
+    { userId: userId ?? session?.user?.id ?? '' },
+    { enabled: !!userId || !!session?.user?.id }
   );
 
   const updateProfile = api.user.updateProfile.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
       setIsEditing(false);
+      await updateSession();
     },
   });
   
@@ -86,6 +102,12 @@ export default function ProfileComponent() {
     }
   }, [status, router]);
 
+  useEffect(() => {
+    if (session?.user?.bio) {
+      setBio(session.user.bio);
+    }
+  }, [session?.user?.bio]);
+
   if (status === 'loading') {
     return <div>Loading...</div>;
   }
@@ -135,13 +157,16 @@ export default function ProfileComponent() {
                 placeholder="Enter your bio"
               />
               <button
-                onClick={() => updateProfile.mutate({ bio })}
+                onClick={() => updateProfile.mutate({ bio, image: session.user.image })}
                 className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
               >
                 Save
               </button>
               <button
-                onClick={() => setIsEditing(false)}
+                onClick={() => {
+                  setIsEditing(false);
+                  setBio(session.user.bio || '');
+                }}
                 className="bg-gray-300 text-black px-4 py-2 rounded"
               >
                 Cancel

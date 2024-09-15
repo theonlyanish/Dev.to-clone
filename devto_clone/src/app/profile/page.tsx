@@ -1,10 +1,14 @@
 import { ClientProvider } from "../_components/ClientProvider";
 import ProfileComponent from "../_components/ProfileComponent";
+import { getServerAuthSession } from "~/server/auth";
 
-export default function ProfilePage() {
+export default async function ProfilePage() {
+
+  const session = await getServerAuthSession();
+
   return (
     <ClientProvider>
-      <ProfileComponent />
+      <ProfileComponent userId={session?.user?.id} />
     </ClientProvider>
   );
 }

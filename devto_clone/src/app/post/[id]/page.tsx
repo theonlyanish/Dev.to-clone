@@ -19,7 +19,9 @@ export default async function BlogPost({ params }: { params: { id: string } }) {
       </Link>
       <h1 className="text-3xl font-bold mb-2">{post.name}</h1>
       <div className="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400 mb-4">
-        <span>By {post.createdBy.name}</span>
+        <Link href={`/user/${post.createdBy.id}`}>
+          <span className="hover:underline">By {post.createdBy.name}</span>
+        </Link>
         <span>{new Date(post.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
       </div>
       <div className="mb-6">
