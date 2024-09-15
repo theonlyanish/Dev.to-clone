@@ -1,3 +1,4 @@
+'use client'
 import { useState, useEffect } from 'react';
 import { api } from '~/trpc/react';
 import { Card, CardContent, CardHeader, CardTitle } from "../../_components/ui/Card";
@@ -5,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "../../_components/ui/C
 interface UserProfileProps {
   userId: string;
 }
-
 export default function UserProfileComponent({ userId }: UserProfileProps) {
   const { data: user, isLoading: userLoading } = api.user.getById.useQuery({ id: userId });
   const { data: userPosts, isLoading: postsLoading } = api.post.getUserPosts.useQuery({ userId });

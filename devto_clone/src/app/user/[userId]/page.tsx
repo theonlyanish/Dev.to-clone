@@ -1,5 +1,5 @@
-import { ClientProvider } from "../_components/ClientProvider";
-import UserProfileComponent from "../user/[userId]/UserProfileComponent";
+import { ClientProvider } from "../../_components/ClientProvider";
+import UserProfileComponent from "./UserProfileComponent";
 
 export default function UserProfilePage({ params }: { params: { userId: string } }) {
   return (
