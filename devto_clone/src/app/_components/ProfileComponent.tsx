@@ -231,14 +231,14 @@ export default function ProfileComponent({ userId }: ProfileComponentProps) {
       ) : (
         <div className="space-y-4">
           {userPosts?.map((post) => (
-            <Card key={post.id}>
+            <Card key={post.id} className="relative mb-4">
+              {post.isArchived && (
+                <span className="absolute top-2 right-2 bg-yellow-500 text-white px-2 py-1 rounded text-xs z-10">
+                  Archived
+                </span>
+              )}
               <CardHeader>
                 <CardTitle>{post.name}</CardTitle>
-                {post.isArchived && (
-                  <span className="absolute top-2 right-2 bg-yellow-500 text-white px-2 py-1 rounded text-xs">
-                    Archived
-                  </span>
-                )}
               </CardHeader>
               <CardContent>
                 <p>{post.content.substring(0, 100)}...</p>

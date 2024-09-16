@@ -46,14 +46,14 @@ export default function UserProfileComponent({ userId }: UserProfileProps) {
       <h3 className="text-xl font-bold mt-8 mb-4">Posts</h3>
       {userPosts?.map((post) => (
         (!post.isArchived || isOwnProfile) && (
-          <Card key={post.id} className="mb-4">
+          <Card key={post.id} className="relative mb-4">
+            {post.isArchived && (
+              <span className="absolute top-2 right-2 bg-yellow-500 text-white px-2 py-1 rounded text-xs z-10">
+                Archived
+              </span>
+            )}
             <CardHeader>
               <CardTitle>{post.name}</CardTitle>
-              {post.isArchived && (
-                <span className="absolute top-2 right-2 bg-yellow-500 text-white px-2 py-1 rounded text-xs">
-                  Archived
-                </span>
-              )}
             </CardHeader>
             <CardContent>
               <p>{post.content.substring(0, 100)}...</p>
