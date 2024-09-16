@@ -1,11 +1,12 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { api } from "~/trpc/react";
 import BlogPosts from "../_components/BlogPosts";
 
-export default function SearchPage() {
-    const searchParams = useSearchParams() ?? new URLSearchParams();;
+function SearchResults() {
+    const searchParams = useSearchParams();
     const query = searchParams.get('q') || '';
 
     const { data: posts, isLoading } = api.post.search.useQuery({ query });
@@ -22,4 +23,12 @@ export default function SearchPage() {
         )}
       </div>
     );
-  }
+}
+
+export default function SearchPage() {
+    return (
+      <Suspense fallback={<div>Loading...</div>}>
+        <SearchResults />
+      </Suspense>
+    );
+}
