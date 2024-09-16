@@ -26,6 +26,8 @@ model Post {
   createdById String
 
   coverImageUrl String?
+  isArchived Boolean @default(false)
+  
   @@index([name])
   @@index([createdById, createdAt])
 }

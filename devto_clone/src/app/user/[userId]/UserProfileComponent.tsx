@@ -2,11 +2,14 @@
 import { useState, useEffect } from 'react';
 import { api } from '~/trpc/react';
 import { Card, CardContent, CardHeader, CardTitle } from "../../_components/ui/Card";
+import { useSession } from 'next-auth/react';
 
 interface UserProfileProps {
   userId: string;
 }
+
 export default function UserProfileComponent({ userId }: UserProfileProps) {
+  const { data: session } = useSession();
   const { data: user, isLoading: userLoading } = api.user.getById.useQuery({ id: userId });
   const { data: userPosts, isLoading: postsLoading } = api.post.getUserPosts.useQuery({ userId });
 
@@ -17,6 +20,8 @@ export default function UserProfileComponent({ userId }: UserProfileProps) {
   if (!user) {
     return <div>User not found</div>;
   }
+
+  const isOwnProfile = session?.user?.id === userId;
 
   return (
     <div className="container mx-auto mt-8 max-w-2xl">
@@ -40,17 +45,24 @@ export default function UserProfileComponent({ userId }: UserProfileProps) {
 
       <h3 className="text-xl font-bold mt-8 mb-4">Posts</h3>
       {userPosts?.map((post) => (
-        <Card key={post.id} className="mb-4">
-          <CardHeader>
-            <CardTitle>{post.name}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>{post.content.substring(0, 100)}...</p>
-            <p className="text-sm text-gray-500 mt-2">
-              Posted on {new Date(post.createdAt).toLocaleDateString()}
-            </p>
-          </CardContent>
-        </Card>
+        (!post.isArchived || isOwnProfile) && (
+          <Card key={post.id} className="mb-4">
+            <CardHeader>
+              <CardTitle>{post.name}</CardTitle>
+              {post.isArchived && (
+                <span className="absolute top-2 right-2 bg-yellow-500 text-white px-2 py-1 rounded text-xs">
+                  Archived
+                </span>
+              )}
+            </CardHeader>
+            <CardContent>
+              <p>{post.content.substring(0, 100)}...</p>
+              <p className="text-sm text-gray-500 mt-2">
+                Posted on {new Date(post.createdAt).toLocaleDateString()}
+              </p>
+            </CardContent>
+          </Card>
+        )
       ))}
     </div>
   );

@@ -13,7 +13,7 @@ interface CodeBlockProps {
   node?: any;
   inline?: boolean;
   className?: string;
-  children?: React.ReactNode; // Make children optional
+  children?: React.ReactNode;
 }
 
 export default function BlogPostForm({ isNewPost = true, post }: { isNewPost?: boolean; post?: { id?: number; name?: string; content?: string; tags?: string[] } | null }) {

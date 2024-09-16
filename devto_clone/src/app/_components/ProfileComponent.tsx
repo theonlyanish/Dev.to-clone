@@ -56,11 +56,39 @@ export default function ProfileComponent({ userId }: ProfileComponentProps) {
     }
   });
 
+  const archivePostMutation = api.post.archive.useMutation({
+    onSuccess: () => {
+      refetchPosts();
+    },
+  });
+
+  const unarchivePostMutation = api.post.unarchive.useMutation({
+    onSuccess: () => {
+      refetchPosts();
+    },
+  });
+
   const deletePost = async (postId: number) => {
     try {
       await deletePostMutation.mutateAsync({ id: postId });
     } catch (error) {
       console.error("Failed to delete post:", error);
+    }
+  };
+
+  const archivePost = async (postId: number) => {
+    try {
+      await archivePostMutation.mutateAsync({ id: postId });
+    } catch (error) {
+      console.error("Failed to archive post:", error);
+    }
+  };
+
+  const unarchivePost = async (postId: number) => {
+    try {
+      await unarchivePostMutation.mutateAsync({ id: postId });
+    } catch (error) {
+      console.error("Failed to unarchive post:", error);
     }
   };
 
@@ -206,6 +234,11 @@ export default function ProfileComponent({ userId }: ProfileComponentProps) {
             <Card key={post.id}>
               <CardHeader>
                 <CardTitle>{post.name}</CardTitle>
+                {post.isArchived && (
+                  <span className="absolute top-2 right-2 bg-yellow-500 text-white px-2 py-1 rounded text-xs">
+                    Archived
+                  </span>
+                )}
               </CardHeader>
               <CardContent>
                 <p>{post.content.substring(0, 100)}...</p>
@@ -220,6 +253,21 @@ export default function ProfileComponent({ userId }: ProfileComponentProps) {
                     >
                       Edit
                     </Link>
+                    {post.isArchived ? (
+                      <button
+                        onClick={() => unarchivePost(post.id)}
+                        className="bg-green-500 text-white px-4 py-2 rounded mr-2"
+                      >
+                        Unarchive
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => archivePost(post.id)}
+                        className="bg-yellow-500 text-white px-4 py-2 rounded mr-2"
+                      >
+                        Archive
+                      </button>
+                    )}
                     <button
                       onClick={() => deletePost(post.id)}
                       className="bg-red-500 text-white px-4 py-2 rounded"

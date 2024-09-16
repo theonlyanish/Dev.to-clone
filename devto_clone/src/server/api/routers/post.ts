@@ -29,6 +29,7 @@ export const postRouter = createTRPCRouter({
 
   getAll: publicProcedure.query(({ ctx }) => {
     return ctx.db.post.findMany({
+      where: { isArchived: false },
       orderBy: { createdAt: "desc" },
       include: { createdBy: true },
     });
@@ -70,6 +71,7 @@ export const postRouter = createTRPCRouter({
       return ctx.db.post.findMany({
         where: { createdById: input.userId },
         orderBy: { createdAt: "desc" },
+        include: { createdBy: true },
       });
     }),
 
@@ -114,6 +116,40 @@ export const postRouter = createTRPCRouter({
           tags: input.tags,
           coverImageUrl: input.coverImageUrl,
         },
+      });
+    }),
+
+  archive: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const post = await ctx.db.post.findUnique({
+        where: { id: input.id },
+      });
+
+      if (!post || post.createdById !== ctx.session.user.id) {
+        throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Not authorized to archive this post' });
+      }
+
+      return ctx.db.post.update({
+        where: { id: input.id },
+        data: { isArchived: true },
+      });
+    }),
+
+  unarchive: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const post = await ctx.db.post.findUnique({
+        where: { id: input.id },
+      });
+
+      if (!post || post.createdById !== ctx.session.user.id) {
+        throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Not authorized to unarchive this post' });
+      }
+
+      return ctx.db.post.update({
+        where: { id: input.id },
+        data: { isArchived: false },
       });
     }),
 });
