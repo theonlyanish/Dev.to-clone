@@ -1,11 +1,13 @@
 'use client';
 
 import Link from "next/link";
-import { useRef } from 'react';
+import { useRef, RefObject } from 'react';
 
-export default function Sidebar() {
-  const searchInputRef = useRef<HTMLInputElement>(null);
+interface SidebarProps {
+  searchInputRef: RefObject<HTMLInputElement>;
+}
 
+export default function Sidebar({ searchInputRef }: SidebarProps) {
   return (
     <aside className="w-64 mr-8">
       <nav>
