@@ -9,6 +9,7 @@ import { uploadToS3 } from "~/app/utils/s3";
 import { useMutation } from '@tanstack/react-query';
 import { UseMutationOptions } from '@tanstack/react-query';
 import { Session } from "next-auth";
+import Link from 'next/link';
 
 interface CustomSession extends Session {
   user: {
@@ -164,7 +165,10 @@ export default function ProfileComponent({ userId }: ProfileComponentProps) {
                 placeholder="Enter your bio"
               />
               <button
-                onClick={() => updateProfile.mutate({ bio, image: session.user.image })}
+                onClick={() => updateProfile.mutate({ 
+                  bio, 
+                  image: session.user.image || undefined 
+                })}
                 className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
               >
                 Save
@@ -209,12 +213,20 @@ export default function ProfileComponent({ userId }: ProfileComponentProps) {
                   Posted on {new Date(post.createdAt).toLocaleDateString()}
                 </p>
                 {session?.user?.id === post.createdById && (
-                  <button
-                    onClick={() => deletePost(post.id)}
-                    className="mt-2 bg-red-500 text-white px-4 py-2 rounded"
-                  >
-                    Delete
-                  </button>
+                  <div className="mt-2">
+                    <Link
+                      href={`/edit-post/${post.id}`}
+                      className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
+                    >
+                      Edit
+                    </Link>
+                    <button
+                      onClick={() => deletePost(post.id)}
+                      className="bg-red-500 text-white px-4 py-2 rounded"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 )}
               </CardContent>
             </Card>

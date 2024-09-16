@@ -16,7 +16,7 @@ interface CodeBlockProps {
   children?: React.ReactNode; // Make children optional
 }
 
-export default function BlogPostForm({ isNewPost = true, post }: { isNewPost?: boolean; post?: { name?: string; content?: string; tags?: string[] } | null }) {
+export default function BlogPostForm({ isNewPost = true, post }: { isNewPost?: boolean; post?: { id?: number; name?: string; content?: string; tags?: string[] } | null }) {
   const [title, setTitle] = useState(post?.name || "");
   const [content, setContent] = useState(post?.content || "");
   const [tags, setTags] = useState(post?.tags?.join(", ") || "");
@@ -33,6 +33,12 @@ export default function BlogPostForm({ isNewPost = true, post }: { isNewPost?: b
   }, [status, router]);
 
   const createPost = api.post.create.useMutation({
+    onSuccess: () => {
+      router.push("/");
+    },
+  });
+
+  const updatePost = api.post.update.useMutation({
     onSuccess: () => {
       router.push("/");
     },
@@ -56,18 +62,25 @@ export default function BlogPostForm({ isNewPost = true, post }: { isNewPost?: b
       }
     }
     try {
-      console.log("Creating post with data:", { title, content, tags: tags.split(',').map(tag => tag.trim()), coverImageUrl });
-      await createPost.mutateAsync({ 
+      const postData = { 
         name: title, 
         content,
         tags: tags.split(',').map(tag => tag.trim()),
         coverImageUrl
-      });
-      console.log("Post created successfully");
+      };
+      
+      if (isNewPost) {
+        console.log("Creating post with data:", postData);
+        await createPost.mutateAsync(postData);
+      } else {
+        console.log("Updating post with data:", { id: post?.id, ...postData });
+        await updatePost.mutateAsync({ id: post?.id!, ...postData });
+      }
+      console.log("Post operation successful");
       router.push("/");
     } catch (error) {
-      console.error("Error creating post:", error);
-      alert("Failed to create post. Please try again.");
+      console.error("Error with post operation:", error);
+      alert("Failed to perform post operation. Please try again.");
     }
   };
 
@@ -183,10 +196,10 @@ export default function BlogPostForm({ isNewPost = true, post }: { isNewPost?: b
           <button
             type="submit"
             className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-            disabled={createPost.isPending}
-            onClick={() => console.log("Create Post button clicked")}
+            disabled={createPost.isPending || updatePost.isPending}
+            onClick={() => console.log("Create/Update Post button clicked")}
           >
-            {createPost.isPending ? "Creating..." : "Create Post"}
+            {(createPost.isPending || updatePost.isPending) ? "Processing..." : (isNewPost ? "Create Post" : "Update Post")}
           </button>
         </div>
       </form>

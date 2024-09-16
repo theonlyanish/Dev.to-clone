@@ -88,4 +88,32 @@ export const postRouter = createTRPCRouter({
       });
       return posts;
     }),
+
+  update: protectedProcedure
+    .input(z.object({
+      id: z.number(),
+      name: z.string().min(1),
+      content: z.string().min(1),
+      tags: z.array(z.string()),
+      coverImageUrl: z.string().optional()
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const post = await ctx.db.post.findUnique({
+        where: { id: input.id },
+      });
+
+      if (!post || post.createdById !== ctx.session.user.id) {
+        throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Not authorized to edit this post' });
+      }
+
+      return ctx.db.post.update({
+        where: { id: input.id },
+        data: {
+          name: input.name,
+          content: input.content,
+          tags: input.tags,
+          coverImageUrl: input.coverImageUrl,
+        },
+      });
+    }),
 });
